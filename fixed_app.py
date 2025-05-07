@@ -11,11 +11,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from datetime import datetime
 
+# Import langchain components - updated imports for newer versions
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI as LangchainOpenAI
+from langchain_openai import OpenAI as LangchainOpenAI
 
 # Page Configuration
 st.set_page_config(page_title="📚 Professional Learning Platform", layout="wide")
@@ -73,7 +74,7 @@ def generate_progress_report():
 
     completed = len(st.session_state.completed_questions)
     total = st.session_state.total_questions
-    
+
     # Avoid division by zero
     progress_percentage = (completed / total * 100) if total > 0 else 0
     c.drawString(100, 690, f"Progress: {completed}/{total} questions completed ({progress_percentage:.1f}%)")
@@ -102,13 +103,13 @@ def create_vectorstore():
         if not st.session_state.extracted_texts:
             st.warning("No text has been extracted from documents yet.")
             return False
-            
+
         if not st.session_state.openai_api_key:
             st.warning("Please enter your OpenAI API key.")
             return False
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-        embeddings_model = OpenAIEmbeddings(openai_api_key=st.session_state.openai_api_key)
+        embeddings_model = OpenAIEmbeddings(api_key=st.session_state.openai_api_key)
 
         docs = []
         for doc in st.session_state.extracted_texts:
@@ -132,21 +133,21 @@ def generate_rag_answer(question):
     try:
         if not st.session_state.vectorstore:
             return "Please upload and process documents to generate answers."
-            
+
         if not st.session_state.openai_api_key:
             return "Please enter your OpenAI API key."
 
         llm = LangchainOpenAI(
-            openai_api_key=st.session_state.openai_api_key, 
+            api_key=st.session_state.openai_api_key,
             model_name=st.session_state.get('selected_model', 'gpt-4o-mini')
         )
-        
+
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
             retriever=st.session_state.vectorstore.as_retriever(search_kwargs={"k": 3})
         )
-        
+
         result = qa_chain({"query": question})
         return result["result"]
     except Exception as e:
@@ -159,7 +160,7 @@ def perform_course_generation():
     try:
         if not st.session_state.vectorstore:
             raise ValueError("Vectorstore not initialized. Please upload and process documents first.")
-            
+
         if not st.session_state.openai_api_key:
             raise ValueError("Please enter your OpenAI API key.")
 
@@ -260,11 +261,11 @@ def generate_course():
     if not st.session_state.vectorstore:
         st.error("Please upload and process documents before generating a course.")
         return
-        
+
     if not st.session_state.openai_api_key:
         st.error("Please enter your OpenAI API key.")
         return
-        
+
     st.session_state.is_generating = True
     st.session_state.course_generated = False
     st.rerun()
@@ -392,23 +393,23 @@ with tab1:
     # Display Course Content
     if not st.session_state.course_generated:
         st.info("📚 Upload PDFs and click 'Generate Course' to create a personalized learning experience.")
-        
+
         # Display a demo button if no course is generated yet
         if st.button("🔍 See Example Course"):
             st.markdown("""
             ### Example Course: Strategic Leadership in Digital Transformation
-            
+
             This course would integrate concepts from your uploaded materials, covering:
-            
+
             - **Module 1**: Digital Leadership Foundations
             - **Module 2**: Strategic Change Management
             - **Module 3**: Building High-Performance Teams
             - **Module 4**: Innovation and Digital Solutions
             - **Module 5**: Measuring Success and ROI
-            
+
             Upload your PDFs and generate a custom course tailored to your specific needs!
             """)
-    
+
     elif st.session_state.course_generated and st.session_state.course_content:
         course = st.session_state.course_content
 
@@ -485,12 +486,12 @@ with tab1:
                         # Display question only if not already answered
                         if question_id not in st.session_state.completed_questions:
                             st.markdown(f"**Question {q_idx}:** {question_text}")
-                            
+
                             if options:
-                                user_answer = st.radio(f"Select your answer for question {q_idx}:", 
-                                                    options, 
+                                user_answer = st.radio(f"Select your answer for question {q_idx}:",
+                                                    options,
                                                     key=f"{question_id}_radio")
-                                
+
                                 if st.button(f"Submit Answer", key=f"{question_id}_submit"):
                                     check_answer(question_id, user_answer, correct_answer)
                             else:
@@ -500,7 +501,7 @@ with tab1:
 
 with tab2:
     st.header("❓ Employer Queries")
-    
+
     if not st.session_state.employer_queries:
         st.info("No questions have been asked yet. Use the sidebar to submit questions about the course materials.")
     else:
@@ -513,7 +514,7 @@ with tab2:
 
 with tab3:
     st.header("📑 Document Sources")
-    
+
     if not st.session_state.extracted_texts:
         st.info("No documents have been uploaded yet. Use the sidebar to upload PDF files.")
     else:
