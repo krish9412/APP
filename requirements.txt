@@ -5,7 +5,3 @@ langchain
 langchain-openai
 chromadb
 reportlab
-pandas
-uuid
-matplotlib
-python-dotenv
