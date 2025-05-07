@@ -4,3 +4,4 @@ langchain
 faiss-cpu
 openai
 reportlab
+langchain-openai
