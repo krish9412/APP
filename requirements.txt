@@ -1,7 +1,7 @@
 streamlit
 pdfplumber
 langchain
-Faiss
+faiss-gpu
 openai
 reportlab
 langchain-openai
