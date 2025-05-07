@@ -4,5 +4,5 @@ pdfplumber
 langchain
 langchain-openai
 langchain_community
-faiss
+faiss-cpu
 reportlab
