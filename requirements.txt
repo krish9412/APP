@@ -3,3 +3,4 @@ pdfplumber
 langchain
 faiss-cpu
 openai
+reportlab
