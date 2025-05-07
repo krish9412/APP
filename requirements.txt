@@ -3,5 +3,6 @@ openai
 pdfplumber
 langchain
 langchain-openai
+langchain_community
 chromadb
 reportlab
