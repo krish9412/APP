@@ -4,3 +4,4 @@ pdfplumber
 reportlab
 langchain
 chromadb
+langchain.embeddings
